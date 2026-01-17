@@ -18,6 +18,8 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\App\Pages\Auth\EditProfile;
+use Illuminate\Support\Facades\Blade;
+use Filament\View\PanelsRenderHook;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -59,6 +61,17 @@ class AppPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+
+            ->renderHook(
+                // Posisi: Setelah Form Login
+                PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
+                fn () => view('filament.auth.google-login-button')
+            )
+            ->renderHook(
+                // Posisi: Setelah Form Register
+                PanelsRenderHook::AUTH_REGISTER_FORM_AFTER,
+                fn () => view('filament.auth.google-login-button')
+            );
     }
 }

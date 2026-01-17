@@ -17,7 +17,7 @@ return new class extends Migration
          
             $table->string('status')->default('Initiated')->index(); 
             
-           
+           $table->json('subtasks')->nullable();
             $table->string('priority')->default('Normal'); 
             
             $table->date('due_date')->nullable();

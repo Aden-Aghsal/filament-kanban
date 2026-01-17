@@ -17,6 +17,8 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Get;
 use App\Models\User;
 use Filament\Notifications\Notification;
+use Filament\Forms\Components\Repeater; 
+use Filament\Forms\Components\Checkbox;
 
 class MemberKanbanBoard extends KanbanBoard
 {
@@ -95,11 +97,25 @@ class MemberKanbanBoard extends KanbanBoard
 
             RichEditor::make('description')->label('Deskripsi'),
             
+            Repeater::make('subtasks')
+            ->label('Langkah Pengerjaan (Subtasks)')
+            ->schema([
+                TextInput::make('title')
+                    ->label('Nama Langkah')
+                    ->required(),
+                    
+                Checkbox::make('is_completed')
+                    ->label('Selesai')
+                    ->default(false),
+            ])
+            ->columns(2) 
+            ->defaultItems(0), 
+
             Select::make('priority')
                 ->options([
-                    'High' => '🔥 High',
-                    'Normal' => '🟦 Normal',
-                    'Low' => '🟩 Low',
+                    'High' => ' High',
+                    'Normal' => ' Normal',
+                    'Low' => ' Low',
                 ])
                 ->default('Normal'),
                 

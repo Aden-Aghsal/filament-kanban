@@ -34,7 +34,7 @@ public static function form(Form $form): Form
                 ->schema([
                     
                     Forms\Components\Select::make('project_id')
-                        ->label('Proyek')
+                        ->label('Project')
                         ->relationship('project', 'name')
                         ->disabled() 
                         ->required(),

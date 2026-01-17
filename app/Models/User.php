@@ -3,12 +3,12 @@
 namespace App\Models;
 
 use Filament\Models\Contracts\FilamentUser;
-use Filament\Models\Contracts\HasAvatar; // <--- 1. Import ini
+use Filament\Models\Contracts\HasAvatar; 
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Storage; // <--- 2. Import ini
+use Illuminate\Support\Facades\Storage; 
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -18,7 +18,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     protected $fillable = [
-        'name', 'email', 'password', 'avatar_url', 
+        'name', 'email', 'password', 'google_id','role', 'avatar_url', 
     ];
 
     protected $hidden = [
@@ -41,11 +41,18 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
 
     public function getFilamentAvatarUrl(): ?string
     {
+        // Jika kosong, kembalikan null (Filament akan generate inisial nama)
+        if (empty($this->avatar_url)) {
+            return null;
+        }
 
-        return $this->avatar_url 
-            ? Storage::url($this->avatar_url) 
-            : null; 
+        // 1. Cek apakah ini link dari Google (ada 'http')
+        if (str_contains($this->avatar_url, 'http')) {
+            return $this->avatar_url; // Kembalikan mentah-mentah
+        }
 
+        // 2. Kalau bukan, berarti file lokal (bungkus dengan Storage)
+        return Storage::url($this->avatar_url); 
     }
 
     public function projects(): BelongsToMany
