@@ -30,7 +30,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         'password' => 'hashed',
     ];
 
-    // Logika Panel Akses 
+
     public function canAccessPanel(Panel $panel): bool
     {
         if ($panel->getId() === 'admin') return $this->hasRole('admin');
@@ -41,17 +41,17 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
 
     public function getFilamentAvatarUrl(): ?string
     {
-        // Jika kosong, kembalikan null (Filament akan generate inisial nama)
+        
         if (empty($this->avatar_url)) {
             return null;
         }
 
-        // 1. Cek apakah ini link dari Google (ada 'http')
+       
         if (str_contains($this->avatar_url, 'http')) {
-            return $this->avatar_url; // Kembalikan mentah-mentah
+            return $this->avatar_url; 
         }
 
-        // 2. Kalau bukan, berarti file lokal (bungkus dengan Storage)
+        
         return Storage::url($this->avatar_url); 
     }
 
