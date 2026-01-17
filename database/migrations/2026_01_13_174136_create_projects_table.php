@@ -13,14 +13,14 @@ public function up(): void
         $table->id();
         $table->string('name');
         
-        // GANTI INI: Dulu client_name, sekarang priority
+        
         $table->string('priority')->default('Normal'); 
         
         $table->string('status')->default('Planned');
         $table->date('start_date')->nullable();
         $table->date('end_date')->nullable();
         
-        // Pastikan deskripsi tipe datanya TEXT atau LONGTEXT agar muat banyak kode HTML/Gambar
+       
         $table->longText('description')->nullable();
         
         $table->foreignId('leader_id')->constrained('users')->onDelete('cascade');

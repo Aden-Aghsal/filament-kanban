@@ -17,9 +17,9 @@ class TaskResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
     
-    protected static ?string $navigationLabel = 'Tugas Saya';
+    protected static ?string $navigationLabel = 'My Tasks';
 
-    // FITUR UTAMA: Kacamata Kuda (Member hanya lihat tugasnya sendiri)
+    
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->where('user_id', auth()->id());
@@ -29,14 +29,14 @@ public static function form(Form $form): Form
 {
     return $form
         ->schema([
-            // BAGIAN 1: INFORMASI UTAMA
+            
             Forms\Components\Section::make('Detail Tugas')
                 ->schema([
-                    // Tampilkan Proyek (Disabled/Read Only) biar tau konteks
+                    
                     Forms\Components\Select::make('project_id')
                         ->label('Proyek')
                         ->relationship('project', 'name')
-                        ->disabled() // Gaboleh ganti proyek sembarangan
+                        ->disabled() 
                         ->required(),
 
                     Forms\Components\TextInput::make('title')
@@ -51,9 +51,9 @@ public static function form(Form $form): Form
                             
                             Forms\Components\Select::make('priority')
                                 ->options([
-                                    'High' => '🔥 High', 
-                                    'Normal' => '🟦 Normal', 
-                                    'Low' => '🟩 Low'
+                                    'High' => ' High', 
+                                    'Normal' => ' Normal', 
+                                    'Low' => ' Low'
                                 ]),
 
                             Forms\Components\DatePicker::make('due_date')
@@ -64,7 +64,7 @@ public static function form(Form $form): Form
                         ->columnSpanFull(),
                 ]),
 
-            // BAGIAN 2: CHECKLIST / SUBTASKS (Fitur ala Trello) ✅
+            
             Forms\Components\Section::make('Checklist Pekerjaan')
                 ->schema([
                     Forms\Components\Repeater::make('subtasks')
@@ -77,7 +77,7 @@ public static function form(Form $form): Form
                                 ->label('Selesai'),
                         ])
                         ->defaultItems(0)
-                        ->grid(1) // Tampil baris per baris
+                        ->grid(1) 
                         ->columnSpanFull(),
                 ])
                 ->collapsible(),
@@ -106,7 +106,7 @@ public static function form(Form $form): Form
                 Tables\Actions\EditAction::make()
                     ->label('Update Status'),
             ])
-            ->bulkActions([]); // Member tidak boleh hapus massal
+            ->bulkActions([]); 
     }
 
     public static function getPages(): array

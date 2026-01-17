@@ -10,14 +10,14 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use RyanChandler\FilamentProgressColumn\ProgressColumn; // Pastikan plugin ini ada
+use RyanChandler\FilamentProgressColumn\ProgressColumn; 
 use App\Filament\App\Pages\MemberKanbanBoard;
 
 class ProjectResource extends Resource
 {
     protected static ?string $model = Project::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-briefcase'; // Ganti ikon biar beda dikit
+    protected static ?string $navigationIcon = 'heroicon-o-briefcase'; 
     protected static ?string $navigationLabel = 'Kelola Proyek';
     protected static ?int $navigationSort = 2;
 
@@ -33,10 +33,10 @@ class ProjectResource extends Resource
                                     ->label('Nama Proyek')
                                     ->required(),
                                 
-                                // 🔥 FITUR ADMIN: Bisa ganti Leader Proyek
+                                
                                 Forms\Components\Select::make('leader_id')
                                     ->label('Project Leader')
-                                    ->relationship('leader', 'name') // Pastikan relasi 'leader' ada di Model Project
+                                    ->relationship('leader', 'name')
                                     ->searchable()
                                     ->preload()
                                     ->required()
@@ -73,7 +73,7 @@ class ProjectResource extends Resource
                                 Forms\Components\DatePicker::make('start_date'),
                                 Forms\Components\DatePicker::make('end_date'),
                                 
-                                // 🔥 FITUR ADMIN: Toggle Arsip
+                                
                                 Forms\Components\Toggle::make('is_archived')
                                     ->label('Arsipkan Proyek')
                                     ->onColor('danger')
@@ -101,25 +101,24 @@ class ProjectResource extends Resource
     {
         return $table
             ->columns([
-                // 1. Informasi Utama
+              
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable()
                     ->description(fn (Project $record) => 'Leader: ' . $record->leader->name), // Tampilkan nama leader di bawah judul
                 
-                // 2. Visual Progress (Sama kayak Member)
+                
                 ProgressColumn::make('completion_percentage')
                     ->label('Progress')
                     ->color('warning')
                     ->poll('5s'),
 
-                // 3. Statistik (Sama kayak Member)
                 Tables\Columns\TextColumn::make('tasks_count')
                     ->counts('tasks')
                     ->label('Total Task')
                     ->badge(),
 
-                // 4. Status
+                
                 Tables\Columns\TextColumn::make('priority')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -129,12 +128,11 @@ class ProjectResource extends Resource
                         'Low' => 'success',
                     }),
 
-                // 5. Kontrol Admin (Toggle Cepat)
                 Tables\Columns\ToggleColumn::make('is_archived')
                     ->label('Arsip'),
             ])
             ->filters([
-                // 🔥 FITUR ADMIN: Filter berdasarkan Pemilik Proyek
+                
                 Tables\Filters\SelectFilter::make('leader_id')
                     ->label('Filter by Leader')
                     ->relationship('leader', 'name')
@@ -149,7 +147,7 @@ class ProjectResource extends Resource
                     ]),
             ])
             ->actions([
-                // Admin juga butuh tombol intip Kanban
+                
                 Tables\Actions\Action::make('open_kanban')
                     ->label('Pantau')
                     ->icon('heroicon-m-eye')
@@ -157,7 +155,7 @@ class ProjectResource extends Resource
                     ->url(fn (Project $record): string => 
         route('filament.app.pages.member-kanban-board', ['project' => $record->id])
     )
-                    ->openUrlInNewTab(), // Biar admin ga close halaman admin panel
+                    ->openUrlInNewTab(), 
 
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
@@ -172,7 +170,7 @@ class ProjectResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // Admin juga perlu manage anggota tim user lain
+            
             \App\Filament\App\Resources\ProjectResource\RelationManagers\MembersRelationManager::class,
         ];
     }

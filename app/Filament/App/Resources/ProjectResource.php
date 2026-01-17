@@ -26,7 +26,7 @@ class ProjectResource extends Resource
 {
     return $form
         ->schema([
-            // KOTAK 1: Info Utama
+            
             Forms\Components\Section::make('Informasi Proyek')
                 ->schema([
                     Forms\Components\TextInput::make('name')
@@ -34,14 +34,14 @@ class ProjectResource extends Resource
                         ->required()
                         ->placeholder('Misal: Website Toko Online'),
 
-                    // PERUBAHAN 1: Ganti Client Name jadi Priority
+                   
                     Forms\Components\Select::make('priority')
                         ->label('Prioritas')
                         ->options([
-                            'Low' => '🟩 Low',
-                            'Normal' => '🟦 Normal',
-                            'High' => '🔥 High',
-                            'Urgent' => '⚡ Urgent',
+                            'Low' => ' Low',
+                            'Normal' => 'Normal',
+                            'High' => 'High',
+                            'Urgent' => 'Urgent',
                         ])
                         ->default('Normal')
                         ->required(),
@@ -56,26 +56,26 @@ class ProjectResource extends Resource
                         ->required(),
                 ])->columns(2),
 
-            // KOTAK 2: Jadwal (Sama seperti sebelumnya)
+       
             Forms\Components\Section::make('Timeline')
                 ->schema([
                     Forms\Components\DatePicker::make('start_date'),
                     Forms\Components\DatePicker::make('end_date'),
                 ])->columns(2),
 
-            // KOTAK 3: Detail & Upload
+            // 
 Forms\Components\Section::make('Detail')
     ->schema([
         Forms\Components\RichEditor::make('description')
             ->label('Deskripsi Lengkap')
             ->placeholder('Tulis detail proyek di sini (Teks saja)...')
             
-            // HAPUS konfigurasi fileAttachmentsDirectory yang tadi
             
-            // TAMBAHKAN INI: Matikan tombol upload gambar
+            
+           
             ->disableToolbarButtons([
-                'attachFiles', // Tombol klip/gambar akan hilang
-                'codeBlock',   // (Opsional) Matikan blok kode jika tidak perlu
+                'attachFiles', 
+                'codeBlock',   
             ])
             
             ->columnSpanFull(),
@@ -84,44 +84,76 @@ Forms\Components\Section::make('Detail')
 }
 
 
-    public static function table(Table $table): Table
+  public static function table(Table $table): Table
 {
     return $table
         ->columns([
-            // 1. Nama Project
             Tables\Columns\TextColumn::make('name')
-                ->searchable(),
-            
-            // 2. Progress Bar (Plugin)
+                ->label('Project Name')
+                ->searchable()
+                ->weight('bold') // Biar lebih tegas
+                ->description(fn (Project $record): string => \Illuminate\Support\Str::limit($record->description, 30)), // Tambah deskripsi kecil di bawah judul
+
+            Tables\Columns\ImageColumn::make('members.avatar_url') 
+                ->label('Team')
+                ->circular()
+                ->stacked() 
+                ->limit(3) 
+                ->tooltip(fn (Project $record): string => $record->members->pluck('name')->implode(', ')),
+
+        
             ProgressColumn::make('completion_percentage')
                 ->label('Progress')
-                ->color('warning')
+                ->color(fn ($state) => match(true) {
+                    $state >= 100 => 'success',
+                    $state >= 50 => 'warning',
+                    default => 'danger',
+                })
                 ->poll('5s'),
 
-            // 3. Total Task
+            Tables\Columns\TextColumn::make('status')
+                ->badge()
+                ->color(fn (string $state): string => match ($state) {
+                    'completed' => 'success',
+                    'active' => 'primary',
+                    'on_hold' => 'warning',
+                    'archived' => 'gray',
+                    default => 'info',
+                }),
+
+            Tables\Columns\TextColumn::make('due_date')
+                ->label('Deadline')
+                ->date('d M Y')
+                ->sortable()
+                ->icon('heroicon-m-calendar'),
+
             Tables\Columns\TextColumn::make('tasks_count')
                 ->counts('tasks')
-                ->label('Total Task'),
-        ]) // <--- Perhatikan penutup array di sini
+                ->label('Tasks')
+                ->badge()
+                ->color('gray'),
+        ])
         ->actions([
-            Tables\Actions\Action::make('open_kanban')
-                ->label('Buka Papan')
-                ->icon('heroicon-m-view-columns')
-                ->color('success')
-                ->url(fn (Project $record): string => 
-                    MemberKanbanBoard::getUrl(['project' => $record->id])
-                ),
-                Tables\Actions\EditAction::make()
-                ->label('Detail & Tim'), 
-        
+            
+            Tables\Actions\ActionGroup::make([
+                Tables\Actions\Action::make('open_kanban')
+                    ->label('Kanban Board')
+                    ->icon('heroicon-m-view-columns')
+                    ->color('info')
+                    ->url(fn (Project $record): string => 
+                        MemberKanbanBoard::getUrl(['project' => $record->id])
+                    ),
+                
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(), 
+            ])
         ]);
-
-        
 }
+        
     public static function getRelations(): array
 {
     return [
-        // Pakai tanda backslash (\) di depan biar PHP baca dari akar folder
+        
         \App\Filament\App\Resources\ProjectResource\RelationManagers\MembersRelationManager::class,
     ];
 }
@@ -137,7 +169,7 @@ Forms\Components\Section::make('Detail')
 
     public static function getEloquentQuery(): Builder
 {
-    // Tampilkan proyek di mana saya adalah LEADER atau ANGGOTA
+  
     return parent::getEloquentQuery()->whereHas('members', function ($query) {
         $query->where('user_id', auth()->id());
     });

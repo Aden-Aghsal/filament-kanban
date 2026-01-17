@@ -1,5 +1,4 @@
 @php
-    // 1. Kita tentukan warna pastinya di sini (Hex Color)
     $hexColor = match ($status['color'] ?? 'gray') {
         'success' => '#16a34a', // Hijau (Done)
         'danger' => '#dc2626',  // Merah (Revision)

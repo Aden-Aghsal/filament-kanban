@@ -13,8 +13,7 @@ enum TaskStatus: string implements HasLabel, HasColor
     case Check = 'Check';
     case Revision = 'Revision';
     case Done = 'Done';
-    case Cancelled = 'Cancelled'; // Saya koreksi typo 'Cancell' jadi 'Cancelled' biar rapi
-
+    case Cancelled = 'Cancelled'; 
     public function getLabel(): ?string
     {
         return match ($this) {

@@ -15,10 +15,7 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    // Ganti icon di sidebar agar lebih keren
     protected static ?string $navigationIcon = 'heroicon-o-users'; 
-    
-    // Urutan menu di sidebar (makin kecil makin atas)
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
@@ -34,14 +31,14 @@ class UserResource extends Resource
                     ->required()
                     ->maxLength(255),
                 
-                // Input Password dengan enkripsi otomatis
+                
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                    ->dehydrated(fn ($state) => filled($state)) // Hanya update jika diisi
+                    ->dehydrated(fn ($state) => filled($state)) 
                     ->required(fn (string $context): bool => $context === 'create'),
                 
-                // Pilihan Role (Admin / Member)
+                
                 Forms\Components\Select::make('roles')
                     ->relationship('roles', 'name')
                     ->multiple()
@@ -60,12 +57,12 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
                 
-                // Menampilkan Badge Role
+                
                 Tables\Columns\TextColumn::make('roles.name')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        'admin' => 'danger',  // Admin warna merah
-                        'member' => 'info',   // Member warna biru
+                        'admin' => 'danger',  
+                        'member' => 'info',   
                         default => 'gray',
                     }),
                 

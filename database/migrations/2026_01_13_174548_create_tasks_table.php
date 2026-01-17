@@ -14,10 +14,10 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             
-            // Status statis sesuai dokumentasimu
+         
             $table->string('status')->default('Initiated')->index(); 
             
-            // Prioritas dengan warna
+           
             $table->string('priority')->default('Normal'); 
             
             $table->date('due_date')->nullable();

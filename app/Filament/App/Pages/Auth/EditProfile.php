@@ -13,20 +13,20 @@ class EditProfile extends BaseEditProfile
     {
         return $form
             ->schema([
-                // Kita panggil input standar (Nama & Email)
+               
                 $this->getNameFormComponent(),
                 $this->getEmailFormComponent(),
                 
-                // INPUT KHUSUS: Upload Avatar
+              
                 FileUpload::make('avatar_url')
                     ->label('Foto Profil')
-                    ->avatar() // Mode tampilan bulat
-                    ->imageEditor() // Bisa crop/rotate gambar
-                    ->disk('public') // Simpan di folder public
-                    ->directory('avatars') // Masuk folder 'avatars'
+                    ->avatar() 
+                    ->imageEditor() 
+                    ->disk('public') 
+                    ->directory('avatars') 
                     ->visibility('public'),
 
-                // Input Password (Wajib ada di halaman profil)
+               
                 $this->getPasswordFormComponent(),
                 $this->getPasswordConfirmationFormComponent(),
             ]);

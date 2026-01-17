@@ -14,11 +14,11 @@ class MembersRelationManager extends RelationManager
     protected static string $relationship = 'members';
     protected static ?string $title = 'Anggota Tim';
 
-    // HAPUS BARIS $statusEnum DI SINI
+    
 
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
-        return true; // Paksa tabel muncul buat semua orang
+        return true; 
     }
 
     public function form(Form $form): Form

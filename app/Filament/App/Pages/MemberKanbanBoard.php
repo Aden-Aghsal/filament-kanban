@@ -20,30 +20,30 @@ use Filament\Notifications\Notification;
 
 class MemberKanbanBoard extends KanbanBoard
 {
-    // --- 1. KONFIGURASI DASAR ---
+    
     protected static string $statusEnum = TaskStatus::class;
     protected static string $model = Task::class;
     protected static string $recordTitleAttribute = 'title';
     protected static string $recordStatusAttribute = 'status';
     protected static ?string $navigationIcon = 'heroicon-o-view-columns';
     
-    // Matikan dari sidebar (akses via Project)
+    
     protected static bool $shouldRegisterNavigation = false; 
 
     public ?int $filterProjectId = null;
 
-    // --- 2. MOUNTING DATA ---
+ 
     public function mount(): void
     {
         $this->filterProjectId = request()->query('project');
 
-        // Validasi: Jika tidak ada ID Project, tendang balik
+        
         if (! $this->filterProjectId) {
             redirect()->to('/app/projects');
         }
     }
 
-    // --- 3. JUDUL DINAMIS ---
+   
     public function getTitle(): string 
     {
         $project = Project::find($this->filterProjectId);
@@ -52,11 +52,11 @@ class MemberKanbanBoard extends KanbanBoard
 
     protected function statuses(): \Illuminate\Support\Collection
     {
-        // Kita ambil array dari Enum, lalu bungkus jadi Collection
+        
         return collect(TaskStatus::statuses());
     }
 
-    // --- 4. QUERY (Hanya Tugas Proyek Ini) ---
+    
     protected function eloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
         return parent::eloquentQuery()
@@ -64,13 +64,13 @@ class MemberKanbanBoard extends KanbanBoard
             ->orderBy('sort_order');
     }
 
-    // --- 5. FORM EDIT (SMART ASSIGNEE) ---
+    
     protected function getEditModalFormSchema(string|int|null $recordId): array
     {
         return [
             TextInput::make('title')->label('Judul Tugas')->required(),
             
-            // Project Terkunci (Read Only)
+          
             Select::make('project_id')
                 ->label('Proyek')
                 ->options(Project::pluck('name', 'id'))
@@ -79,7 +79,7 @@ class MemberKanbanBoard extends KanbanBoard
                 ->dehydrated()
                 ->required(),
 
-            // Assignee Cerdas (Hanya Anggota Tim)
+         
             Select::make('user_id')
                 ->label('Penanggung Jawab')
                 ->relationship('assignee', 'name')
@@ -107,17 +107,17 @@ class MemberKanbanBoard extends KanbanBoard
         ];
     }
 
-    // --- 6. HEADER ACTIONS (DITAMBAHKAN TOMBOL INVITE) ---
+   
     protected function getHeaderActions(): array
     {
         return [
-            // 1. Tombol Kembali
+           
             Action::make('back')
                 ->label('Kembali')
                 ->color('gray')
                 ->url('/app/projects'), 
 
-            // 2. 🔥 TOMBOL UNDANG TIM (BARU) 🔥
+           
             Action::make('inviteMember')
                 ->label('Undang Tim')
                 ->icon('heroicon-m-user-plus')
@@ -128,7 +128,7 @@ class MemberKanbanBoard extends KanbanBoard
                         ->searchable()
                         ->preload()
                         ->required()
-                        // Tampilkan hanya user yang BELUM join project ini
+                       
                         ->options(function () {
                             $currentProjectId = $this->filterProjectId;
                             
@@ -141,7 +141,7 @@ class MemberKanbanBoard extends KanbanBoard
                     $project = Project::find($this->filterProjectId);
                     
                     if ($project) {
-                        // Attach user ke project (Pastikan relasi 'members' ada di Model Project)
+                       
                         $project->members()->attach($data['user_id']);
 
                         Notification::make()
@@ -151,7 +151,6 @@ class MemberKanbanBoard extends KanbanBoard
                     }
                 }),
 
-            // 3. Tombol Tambah Tugas
             CreateAction::make()
                 ->label('Tambah Tugas')
                 ->model(Task::class)
@@ -163,7 +162,7 @@ class MemberKanbanBoard extends KanbanBoard
                         ->default('Normal'),
                     DatePicker::make('due_date')->label('Deadline'),
                     
-                    // Hidden Fields (Otomatis Terisi)
+                    
                     Hidden::make('project_id')->default($this->filterProjectId),
                     Hidden::make('user_id')->default(auth()->id()), 
                     Hidden::make('status')->default('Initiated'), 
@@ -176,7 +175,7 @@ class MemberKanbanBoard extends KanbanBoard
         ];
     }
 
-    // --- 7. LOGIKA PINDAH STATUS ---
+   
     public function onStatusChanged(int|string $recordId, string $status, array $fromOrderedIds, array $toOrderedIds): void
     {
         Task::find($recordId)->update(['status' => $status]);

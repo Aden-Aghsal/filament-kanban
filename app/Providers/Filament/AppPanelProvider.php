@@ -26,13 +26,11 @@ class AppPanelProvider extends PanelProvider
         return $panel
             ->id('app')
             ->path('app')
-            
-            // --- TAMBAHAN PENTING MULAI SINI ---
-            ->login()        // Mengaktifkan halaman Login
+            ->login()       
             ->registration() 
-            ->profile()// Mengaktifkan halaman Registrasi User Baru
+            ->profile()
             ->profile(EditProfile::class)
-            // --- TAMBAHAN PENTING SELESAI SINI ---
+            
             ->sidebarCollapsibleOnDesktop()
 
             ->colors([

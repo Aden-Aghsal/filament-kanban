@@ -13,12 +13,12 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class User extends Authenticatable implements FilamentUser, HasAvatar // <--- 3. Tambah HasAvatar
+class User extends Authenticatable implements FilamentUser, HasAvatar 
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     protected $fillable = [
-        'name', 'email', 'password', 'avatar_url', // <--- 4. Pastikan ada avatar_url (atau kita buat accessor)
+        'name', 'email', 'password', 'avatar_url', 
     ];
 
     protected $hidden = [
@@ -30,7 +30,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar // <--- 3.
         'password' => 'hashed',
     ];
 
-    // Logika Panel Akses (Yang sudah kita buat tadi)
+    // Logika Panel Akses 
     public function canAccessPanel(Panel $panel): bool
     {
         if ($panel->getId() === 'admin') return $this->hasRole('admin');
@@ -38,23 +38,19 @@ class User extends Authenticatable implements FilamentUser, HasAvatar // <--- 3.
         return false;
     }
 
-    // --- LOGIKA AVATAR ---
-    
-    // Memberitahu Filament dimana letak URL foto profil user
+
     public function getFilamentAvatarUrl(): ?string
     {
-        // Jika user punya foto di kolom 'avatar_url', pakai itu.
-        // Jika tidak, pakai placeholder gratis dari UI Avatars.
+
         return $this->avatar_url 
             ? Storage::url($this->avatar_url) 
             : null; 
-            // Filament otomatis fallback ke inisial jika null, 
-            // tapi null di sini agar dia nge-cek disk dulu.
+
     }
 
     public function projects(): BelongsToMany
     {
-        // User bisa punya banyak Proyek
+        
         return $this->belongsToMany(Project::class, 'project_user')
             ->withTimestamps();
     }

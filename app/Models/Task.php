@@ -16,12 +16,12 @@ class Task extends Model
         'status', 
         'priority', 
         'due_date',
-        'subtasks' // 👈 1. WAJIB DITAMBAH DI SINI
+        'subtasks' 
     ];
 
     protected $casts = [
         'status' => TaskStatus::class,
-        'subtasks' => 'array', // 👈 2. WAJIB DITAMBAH DI SINI (Supaya jadi JSON)
+        'subtasks' => 'array',
     ];
 
     // Relasi ke Project

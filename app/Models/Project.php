@@ -34,7 +34,7 @@ class Project extends Model
         return $this->belongsTo(User::class, 'leader_id');
     }
 
-    // 3. Relasi ke Anggota Tim (Members) -> INI YANG TADI ERROR
+    // 3. Relasi ke Anggota Tim (Members) 
     public function members(): BelongsToMany
     {
         // Menghubungkan Project ke User lewat tabel pivot 'project_user'
@@ -48,7 +48,7 @@ class Project extends Model
         $total = $this->tasks()->count();
         if ($total === 0) return 0;
 
-        // Pastikan status 'Done' sesuai dengan Enum TaskStatus kamu
+        //  periksa status 'Done' sesuai dengan Enum TaskStatus
         $completed = $this->tasks()->where('status', 'Done')->count();
         
         return round(($completed / $total) * 100);

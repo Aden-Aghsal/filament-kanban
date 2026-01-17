@@ -18,13 +18,13 @@ class TaskResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-table-cells';
     
-    protected static ?string $navigationGroup = 'Manajemen Tugas'; // Mengelompokkan menu
+    protected static ?string $navigationGroup = 'Manajemen Tugas'; 
     
     protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {
-        // Kita gunakan schema form yang sama dengan Kanban agar konsisten
+     
         return $form
             ->schema([
                 Forms\Components\TextInput::make('title')->required(),
@@ -43,14 +43,13 @@ class TaskResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title')->searchable()->sortable(),
-                
-                // Menampilkan nama Proyek
+              
                 Tables\Columns\TextColumn::make('project.name')
                     ->badge()
                     ->color('gray')
                     ->sortable(),
 
-                // Menampilkan siapa yang mengerjakan
+               
                 Tables\Columns\TextColumn::make('assignee.name')
                     ->icon('heroicon-m-user')
                     ->placeholder('Unassigned'),
@@ -68,12 +67,12 @@ class TaskResource extends Resource
                     }),
             ])
             ->filters([
-                // FILTER CANGGIH: Admin bisa pilih task dari proyek mana
+             
                 Tables\Filters\SelectFilter::make('project_id')
                     ->label('Filter by Project')
                     ->relationship('project', 'name'),
                     
-                // Filter berdasarkan Status
+          
                 Tables\Filters\SelectFilter::make('status')
                     ->options(\App\Enums\TaskStatus::class),
             ])
