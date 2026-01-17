@@ -47,7 +47,7 @@ class MemberKanbanBoard extends KanbanBoard
     public function getTitle(): string 
     {
         $project = Project::find($this->filterProjectId);
-        return $project ? "Papan: {$project->name}" : 'Papan Kerja Tim';
+        return $project ? " {$project->name}" : 'Papan Kerja Tim';
     }
 
     protected function statuses(): \Illuminate\Support\Collection

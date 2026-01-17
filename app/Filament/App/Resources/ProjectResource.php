@@ -84,72 +84,40 @@ Forms\Components\Section::make('Detail')
 }
 
 
-  public static function table(Table $table): Table
+    public static function table(Table $table): Table
 {
     return $table
         ->columns([
+           
             Tables\Columns\TextColumn::make('name')
-                ->label('Project Name')
-                ->searchable()
-                ->weight('bold') // Biar lebih tegas
-                ->description(fn (Project $record): string => \Illuminate\Support\Str::limit($record->description, 30)), // Tambah deskripsi kecil di bawah judul
-
-            Tables\Columns\ImageColumn::make('members.avatar_url') 
-                ->label('Team')
-                ->circular()
-                ->stacked() 
-                ->limit(3) 
-                ->tooltip(fn (Project $record): string => $record->members->pluck('name')->implode(', ')),
-
-        
+                ->searchable(),
+            
+            
             ProgressColumn::make('completion_percentage')
                 ->label('Progress')
-                ->color(fn ($state) => match(true) {
-                    $state >= 100 => 'success',
-                    $state >= 50 => 'warning',
-                    default => 'danger',
-                })
+                ->color('warning')
                 ->poll('5s'),
 
-            Tables\Columns\TextColumn::make('status')
-                ->badge()
-                ->color(fn (string $state): string => match ($state) {
-                    'completed' => 'success',
-                    'active' => 'primary',
-                    'on_hold' => 'warning',
-                    'archived' => 'gray',
-                    default => 'info',
-                }),
-
-            Tables\Columns\TextColumn::make('due_date')
-                ->label('Deadline')
-                ->date('d M Y')
-                ->sortable()
-                ->icon('heroicon-m-calendar'),
-
+           
             Tables\Columns\TextColumn::make('tasks_count')
                 ->counts('tasks')
-                ->label('Tasks')
-                ->badge()
-                ->color('gray'),
-        ])
+                ->label('Total Task'),
+        ]) 
         ->actions([
-            
-            Tables\Actions\ActionGroup::make([
-                Tables\Actions\Action::make('open_kanban')
-                    ->label('Kanban Board')
-                    ->icon('heroicon-m-view-columns')
-                    ->color('info')
-                    ->url(fn (Project $record): string => 
-                        MemberKanbanBoard::getUrl(['project' => $record->id])
-                    ),
-                
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(), 
-            ])
-        ]);
-}
+            Tables\Actions\Action::make('open_kanban')
+                ->label('View Kanban')
+                ->icon('heroicon-m-view-columns')
+                ->color('success')
+                ->url(fn (Project $record): string => 
+                    MemberKanbanBoard::getUrl(['project' => $record->id])
+                ),
+                Tables\Actions\EditAction::make()
+                ->label('Edit'), 
         
+        ]);
+
+        
+}
     public static function getRelations(): array
 {
     return [
