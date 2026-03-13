@@ -1,0 +1,19 @@
+[Unit]
+Description=Laravel Queue Worker
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/path/to/your/project
+ExecStart=/usr/bin/php /path/to/your/project/artisan queue:work database --sleep=3 --tries=3 --timeout=120
+Restart=always
+RestartSec=2
+Environment=APP_ENV=production
+Environment=QUEUE_CONNECTION=database
+StandardOutput=append:/var/log/laravel-queue.log
+StandardError=append:/var/log/laravel-queue.log
+
+[Install]
+WantedBy=multi-user.target
