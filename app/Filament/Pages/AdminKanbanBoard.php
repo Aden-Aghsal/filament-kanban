@@ -149,7 +149,7 @@ class AdminKanbanBoard extends KanbanBoard
                         \Filament\Notifications\Actions\Action::make('view')
                             ->label('View Board')
                             ->button()
-                            ->url(MemberKanbanBoard::getUrl(['project' => $project->id])),
+                         ->url(MemberKanbanBoard::getUrl(['project' => $project->id], panel: 'app')),
                     ]);
 
                 SendFilamentDatabaseNotification::dispatch(
@@ -348,7 +348,7 @@ class AdminKanbanBoard extends KanbanBoard
                             \Filament\Notifications\Actions\Action::make('view')
                                 ->label('View Task')
                                 ->button()
-                                ->url(MemberKanbanBoard::getUrl(['project' => $task->project_id])),
+                              ->url(MemberKanbanBoard::getUrl(['project' => $task->project_id], panel: 'app')),
                         ]);
 
                     SendFilamentDatabaseNotification::dispatch(

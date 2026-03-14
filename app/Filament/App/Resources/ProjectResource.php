@@ -46,7 +46,8 @@ class ProjectResource extends Resource
                             )
                             ->searchable(['name', 'email']) // Tambah ini biar bisa cari pakai email
                             ->preload()
-                            ->required()
+                            ->hiddenOn('create')
+                            ->required(fn (string $operation): bool => $operation === 'edit')
                             // --- RENDER HTML UNTUK AVATAR & EMAIL ---
                             ->getOptionLabelFromRecordUsing(function (\App\Models\User $record) {
                                 $safeName = e($record->name);
@@ -100,8 +101,12 @@ class ProjectResource extends Resource
                 // ... (Section Timeline dan Details biarkan sama) ...
                 Forms\Components\Section::make('Timeline')
                     ->schema([
-                        Forms\Components\DatePicker::make('start_date')->native(false),
-                        Forms\Components\DatePicker::make('end_date')->native(false),
+                        Forms\Components\DatePicker::make('start_date')->native(false)->beforeOrEqual('end_date')
+    ->validationMessages([
+        'before_or_equal' => 'The start date must not exceed the deadline.',]),
+                        Forms\Components\DatePicker::make('end_date')->native(false)->afterOrEqual('start_date')
+    ->validationMessages([
+        'after_or_equal' => 'The deadline cannot be earlier than the start date.',]),
                     ])->columns(2),
 
                 Forms\Components\Section::make('Details')
@@ -213,8 +218,51 @@ class ProjectResource extends Resource
                                 if ($endDate->eq($today)) return 'heroicon-m-clock'; 
                                 
                                 return 'heroicon-m-calendar'; 
-                            }),
+                            })
 
+                        
+                    ]),
+
+                    // BARIS 4: PROGRESS BAR + AUTO STATUS
+                  // BARIS 4: PROGRESS BAR + AUTO STATUS + PRIORITY
+                    Tables\Columns\Layout\Split::make([
+                        // 1. Kolom Progress Bar
+                        Tables\Columns\TextColumn::make('progress')
+                            ->extraAttributes(['style' => 'width: 100%; display: block;']) 
+                            ->getStateUsing(function (Project $record) {
+                                $totalTasks = (int) ($record->tasks_count ?? 0);
+                                $doneTasks = (int) ($record->done_tasks_count ?? 0);
+                                $percentage = $totalTasks > 0 ? round(($doneTasks / $totalTasks) * 100) : 0;
+
+                                // LOGIKA PENENTUAN STATUS (TAMPILAN)
+                                $statusDisplay = 'Planned';
+                                $statusColor = 'gray';
+
+                                if ($totalTasks > 0) {
+                                    if ($percentage === 100) {
+                                        $statusDisplay = 'Done';
+                                        $statusColor = 'rgb(16 185 129)'; 
+                                    } elseif ($percentage > 0) {
+                                        $statusDisplay = 'In Progress';
+                                        $statusColor = 'rgb(59 130 246)'; 
+                                    }
+                                }
+
+                                return new \Illuminate\Support\HtmlString('
+                                    <div style="width: 100%; margin-top: 8px;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                            <span class="text-xs font-bold" style="color: ' . $statusColor . ';">' . $statusDisplay . '</span>
+                                            <span class="text-xs font-bold" style="color: rgb(var(--primary-500));">' . $percentage . '% (' . $doneTasks . '/' . $totalTasks . ')</span>
+                                        </div>
+                                        <div class="bg-gray-200 dark:bg-gray-700" style="width: 100%; border-radius: 9999px; height: 8px; overflow: hidden;">
+                                            <div style="height: 100%; border-radius: 9999px; background-color: rgb(var(--primary-500)); transition: width 0.5s ease-in-out; width: ' . $percentage . '%;"></div>
+                                        </div>
+                                    </div>
+                                ');
+                            })
+                            ->grow(), // <-- Membuat progress bar mengambil semua sisa ruang di kiri
+
+                        // 2. Kolom Priority
                         Tables\Columns\TextColumn::make('priority')
                             ->badge()
                             ->color(fn (string $state) => match ($state) {
@@ -224,43 +272,10 @@ class ProjectResource extends Resource
                                 'Urgent' => 'danger',
                                 default => 'secondary',
                             })
-                            ->icon('heroicon-m-flag'),
-                    ]),
-
-                    // BARIS 4: PROGRESS BAR + AUTO STATUS
-                    Tables\Columns\TextColumn::make('progress')
-                        ->extraAttributes(['style' => 'width: 100%; display: block;']) 
-                        ->getStateUsing(function (Project $record) {
-                            $totalTasks = (int) ($record->tasks_count ?? 0);
-                            $doneTasks = (int) ($record->done_tasks_count ?? 0);
-                            $percentage = $totalTasks > 0 ? round(($doneTasks / $totalTasks) * 100) : 0;
-
-                            // LOGIKA PENENTUAN STATUS (TAMPILAN)
-                            $statusDisplay = 'Planned';
-                            $statusColor = 'gray'; // Warna text default
-
-                            if ($totalTasks > 0) {
-                                if ($percentage === 100) {
-                                    $statusDisplay = 'Done';
-                                    $statusColor = 'rgb(16 185 129)'; // Hijau (Emerald 500)
-                                } elseif ($percentage > 0) {
-                                    $statusDisplay = 'In Progress';
-                                    $statusColor = 'rgb(59 130 246)'; // Biru (Blue 500)
-                                }
-                            }
-
-                            return new \Illuminate\Support\HtmlString('
-                                <div style="width: 100%; margin-top: 8px;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                        <span class="text-xs font-bold" style="color: ' . $statusColor . ';">' . $statusDisplay . '</span>
-                                        <span class="text-xs font-bold" style="color: rgb(var(--primary-500));">' . $percentage . '% (' . $doneTasks . '/' . $totalTasks . ')</span>
-                                    </div>
-                                    <div class="bg-gray-200 dark:bg-gray-700" style="width: 100%; border-radius: 9999px; height: 8px; overflow: hidden;">
-                                        <div style="height: 100%; border-radius: 9999px; background-color: rgb(var(--primary-500)); transition: width 0.5s ease-in-out; width: ' . $percentage . '%;"></div>
-                                    </div>
-                                </div>
-                            ');
-                        }),
+                            ->icon('heroicon-m-flag')
+                            ->grow(false), // <-- Mencegah badge melebar
+                    ])->from('md')->extraAttributes(['style' => 'align-items: center;']), // Memastikan keduanya sejajar vertikal di tengah
+                        
 
                 ])->space(3),
             ])

@@ -54,6 +54,7 @@ class TaskResource extends Resource
 
                         // --- INI DIA ASSIGNEE NORMAL BEBAS BUG ---
                         Forms\Components\Select::make('user_id')
+                        ->required()
                             ->label('Assignee')
                             ->relationship(
                                 name: 'assignee',
@@ -78,7 +79,8 @@ class TaskResource extends Resource
                             ->getOptionLabelFromRecordUsing(
                                 fn (\App\Models\User $record) => e($record->name) . ' (' . e($record->email) . ')'
                             )
-    ->searchable(['name', 'email']) // Biar kamu bisa ngetik email di kolom pencariannya
+    ->searchable(['name', 'email'])
+     ->required()
     ->preload(),
 
                     ])->columns(2),

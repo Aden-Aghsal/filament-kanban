@@ -44,4 +44,5 @@ class EditTask extends EditRecord
     {
         return \App\Filament\App\Pages\MemberKanbanBoard::getUrl(['project' => $this->record->project_id]);
     }
+    
 }

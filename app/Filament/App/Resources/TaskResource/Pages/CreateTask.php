@@ -36,4 +36,9 @@ class CreateTask extends CreateRecord
 
         return $data;
     }
+  protected function getRedirectUrl(): string
+    {
+        return \App\Filament\App\Pages\MemberKanbanBoard::getUrl(['project' => $this->record->project_id]);
+    }
+
 }

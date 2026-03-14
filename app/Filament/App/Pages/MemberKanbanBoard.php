@@ -157,7 +157,7 @@ class MemberKanbanBoard extends KanbanBoard
                     ->success()
                     ->actions([ 
                         \Filament\Notifications\Actions\Action::make('view')
-                            ->label('View Board')
+                            ->label('View Kanban')
                             ->button()
                             ->url(MemberKanbanBoard::getUrl(['project' => $project->id])),
                     ]);

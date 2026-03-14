@@ -40,8 +40,8 @@ class EditTask extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
-    public function recordClicked($recordId, array $data): void
-{
-    redirect()->to(\App\Filament\Resources\TaskResource::getUrl('edit', ['record' => $recordId]));
-}
+ protected function getRedirectUrl(): string
+    {
+        return \App\Filament\App\Pages\AdminKanbanBoard::getUrl(['project' => $this->record->project_id]);
+    }
 }

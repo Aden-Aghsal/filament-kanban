@@ -14,6 +14,9 @@ class TaskResource extends Resource
 {
     protected static ?string $model = Task::class;
 
+    
+       protected static ?string $navigationGroup = 'Project Management';
+    protected static ?int $navigationSort = 2;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     // Sembunyikan dari sidebar Admin

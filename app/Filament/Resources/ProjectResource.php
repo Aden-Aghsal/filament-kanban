@@ -30,7 +30,7 @@ class ProjectResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make('Project Information')
-                    ->description('Main details about this project.')
+                  
                     ->schema([
                         Forms\Components\TextInput::make('name')
                             ->label('Project Name')
@@ -48,7 +48,7 @@ class ProjectResource extends Resource
                             ->searchable(['name', 'email']) // Tambah ini biar bisa cari pakai email
                             ->preload()
                             ->required()
-                            ->helperText('Admins can change the leader of this project.')
+                         
                             // --- RENDER HTML UNTUK AVATAR & EMAIL ---
                             ->getOptionLabelFromRecordUsing(function (\App\Models\User $record) {
                                 $safeName = e($record->name);
@@ -100,17 +100,15 @@ class ProjectResource extends Resource
                     ])
                     ->columns(2),
 
-                Forms\Components\Section::make('Schedule')
+              Forms\Components\Section::make('Timeline')
                     ->schema([
-                        Forms\Components\DatePicker::make('start_date')
-                            ->label('Start Date')
-                            ->native(false),
-                        
-                        Forms\Components\DatePicker::make('end_date')
-                            ->label('Deadline')
-                            ->native(false),
-                    ])
-                    ->columns(2),
+                        Forms\Components\DatePicker::make('start_date')->native(false)->beforeOrEqual('end_date')
+    ->validationMessages([
+        'before_or_equal' => 'The start date must not exceed the deadline.',]),
+                        Forms\Components\DatePicker::make('end_date')->native(false)->afterOrEqual('start_date')
+    ->validationMessages([
+        'after_or_equal' => 'The deadline cannot be earlier than the start date.',]),
+                    ])->columns(2),
 
                 Forms\Components\Section::make('Description Details')
                     ->schema([
@@ -141,10 +139,7 @@ class ProjectResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                // ProgressColumn::make('completion_percentage')
-                //     ->label('Progress')
-                //     ->color('warning')
-                //     ->poll('5s'),
+               
 
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
@@ -198,9 +193,33 @@ class ProjectResource extends Resource
                         return 'heroicon-m-calendar';
                     }),
 
-                Tables\Columns\TextColumn::make('tasks_count')
-                    ->counts('tasks')
-                    ->label('Total Tasks'),
+               Tables\Columns\TextColumn::make('progress')
+                    ->label('Progress')
+                    ->getStateUsing(function (Project $record) {
+                        $totalTasks = (int) ($record->tasks_count ?? 0);
+                        $doneTasks = (int) ($record->done_tasks_count ?? 0);
+                        $percentage = $totalTasks > 0 ? round(($doneTasks / $totalTasks) * 100) : 0;
+
+                        // Warna bar: Biru saat jalan, Hijau saat 100%, Abu-abu kalau kosong
+                        $barColor = 'rgb(59 130 246)'; // Biru (Primary/Info)
+                        if ($totalTasks > 0 && $percentage === 100) {
+                            $barColor = 'rgb(16 185 129)'; // Hijau (Success)
+                        } elseif ($totalTasks === 0) {
+                            $barColor = 'rgb(156 163 175)'; // Abu-abu
+                        }
+
+                        return new \Illuminate\Support\HtmlString('
+                            <div style="min-width: 120px; max-width: 200px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <span style="font-size: 0.75rem; font-weight: 600;" class="text-gray-700 dark:text-gray-200">' . $percentage . '%</span>
+                                    <span style="font-size: 0.75rem; font-weight: 500;" class="text-gray-500 dark:text-gray-400">' . $doneTasks . '/' . $totalTasks . ' Tasks</span>
+                                </div>
+                                <div class="bg-gray-200 dark:bg-gray-700" style="width: 100%; border-radius: 9999px; height: 6px; overflow: hidden;">
+                                    <div style="height: 100%; border-radius: 9999px; background-color: ' . $barColor . '; transition: width 0.5s ease-in-out; width: ' . $percentage . '%;"></div>
+                                </div>
+                            </div>
+                        ');
+                    }),
 
                 Tables\Columns\ImageColumn::make('members')
                     ->label('Team')
